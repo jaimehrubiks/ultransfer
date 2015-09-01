@@ -77,13 +77,19 @@ public class TCPsocket {
         long total  =     path.length();
         
         try (FileInputStream fis = new FileInputStream(path)) {
-
+            //long progress = 0;
+            //double test;
             int rest = (int) total % buffSize;
             tx.writeLong(total);
             byte[] buffer = new byte[buffSize];
             for (int i = 0; i < total - rest; i += buffSize) {
-                fis.read(buffer, 0, buffSize);
+                /*progress +=*/ fis.read(buffer, 0, buffSize);
+                //test = progress / total ;
                 tx.write(buffer, 0, buffSize);
+                //System.out.println("progress: "+progress);
+                //System.out.println("test: "+test);
+                //System.out.println("total: "+total);
+                //System.out.println("[%] "+ test );
             }
             fis.read(buffer, 0, rest);
             tx.write(buffer, 0, rest);
@@ -253,6 +259,10 @@ public class TCPsocket {
         try{
             if(tcpSocket!=null)tcpSocket.close();
         }catch(Exception e){}
+    }
+    
+    public String getIp(){
+        return tcpSocket.getInetAddress().toString();
     }
     
 //    public void enviarArrayBytes(byte[] array) {

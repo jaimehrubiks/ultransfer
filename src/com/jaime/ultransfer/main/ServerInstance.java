@@ -36,13 +36,13 @@ public class ServerInstance implements Runnable{
             socket.sendByte(NetOperations.PASSWORD_ACK);
         else{
             socket.sendByte(NetOperations.PASSWORD_NACK);
-            System.out.println("[?] "+"Client tried to connect but failed in authentication");
+            System.out.println("[?] "+"Client "+socket.getIp() +" tried to connect but failed in authentication");
             connected = false;
         }
         
         if(connected){
             int fileNumber = socket.getInt();
-            System.out.println("[?] "+"New client succesfully authenticated. "+fileNumber+" files are now in queue to be received.");
+            System.out.println("[?] "+"New client "+socket.getIp() +" succesfully authenticated. "+fileNumber+" files are now in queue to be received.");
             String fileName;
             File file;
             byte op;
