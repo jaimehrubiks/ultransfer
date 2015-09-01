@@ -46,7 +46,7 @@ public class ServerInstance implements Runnable{
             String fileName;
             File file;
             for(int i = 1 ; i <= fileNumber ; i++){
-                file = new File( param.getDirectory()+socket.getString() );
+                file = new File( param.getDirectory()+"/"+socket.getString() );
                 //fileName = socket.getString();
                 socket.getFile( file );
                 System.out.println(i+"/"+fileNumber+" - File "+file.getName()+" Received");
