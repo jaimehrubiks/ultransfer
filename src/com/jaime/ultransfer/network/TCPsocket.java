@@ -129,7 +129,7 @@ public class TCPsocket {
 
     }
 
-    public int getByte() {
+    public byte getByte() {
 
         byte nt;
 

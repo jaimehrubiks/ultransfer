@@ -44,14 +44,20 @@ public class ClientMode {
         
         while(connected){
             int fileNumber = param.getFiles().size();
-            System.out.println("Authentication successful! Preparing to send "+fileNumber+" files.");
+            System.out.println("[?] "+"Authentication successful! Preparing to send "+fileNumber+" files.");
             socket.sendInt(fileNumber);
             File file;
             for(int i = 1 ; i <= fileNumber ; i++){
                 file = new File( param.getFiles().get(i-1) );
-                socket.sendString( file.getName() );
-                socket.sendFile( file );
-                System.out.println(i+"/"+fileNumber+" - File "+file.getName()+" Sent.");
+                if( file.exists() && file.isFile() ){
+                    socket.sendByte(NetOperations.FILE_SOON);
+                    socket.sendString( file.getName() );
+                    socket.sendFile( file );
+                    System.out.println("[o] "+i+"/"+fileNumber+" - File \""+file.getName()+"\" Sent.");
+                }else{
+                    socket.sendByte(NetOperations.FILE_NOT_FOUND);
+                    System.out.println("[x] "+i+"/"+fileNumber+" - File \""+file.getName()+"\" NOT FOUND.");
+                }
             }
             connected = false;
         }

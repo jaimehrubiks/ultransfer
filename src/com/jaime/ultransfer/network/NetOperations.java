@@ -14,6 +14,7 @@ public class NetOperations {
     public static byte PASSWORD_REQUIRED     = 1;
     public static byte PASSWORD_ACK          = 2;
     public static byte PASSWORD_NACK         = 3;
-   
+    public static byte FILE_SOON             = 4;
+    public static byte FILE_NOT_FOUND        = 5;
     
 }
