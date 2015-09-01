@@ -24,14 +24,23 @@ public class Ultransfer {
 //        String[] testt = test.split(" ");
         
         ParamParser param = new ParamParser();
-        
+        JCommander jc = null;
+         
         try{
-            JCommander jc = new JCommander(param,args);
+            jc = new JCommander(param,args);
             param.validateMode();
+            
         } catch(ParameterException pe){
             System.out.println(pe.getMessage());
             System.out.println("Use --help|-h to see detailed instructions.");
             System.exit(1);
+        }
+        
+        if(param.isHelp()) {
+            jc.setProgramName("java -jar ultransfer.jar -s|-r");
+            jc.setColumnSize(200);
+            jc.usage();
+            System.exit(0);
         }
         
         if(param.getReceiveMode()==true) new ServerMode(param).run();

@@ -24,6 +24,9 @@ public class ParamParser {
     //@Parameter
     //private List<String> parameters = new ArrayList<>();
 
+    @Parameter(names = {"--help", "-h"}, description = "Shows this help", help = true)
+    private static boolean help = false;
+    
     //Server Client Mode Flags
     @Parameter(names = {"--send", "-s"}, description = "Send a file" )
     private static boolean send = false;
@@ -35,18 +38,20 @@ public class ParamParser {
     @Parameter(names = {"--port","-p"}, description = "Port to listen / connect [Optional, default: 7055]",validateWith = portValidator.class)
     private Integer port = 7055;
 
-    @Parameter(names = {"--host", "-h"}, description = "Host | Destination, required in --send|-s mode")
+    @Parameter(names = {"--destination", "-d"}, description = "Host | Destination, required in --send|-s mode")
     private static String host = "null";
 
     //Configs
-    @Parameter(names = {"--directory", "-d"}, description = "Directory to save files [Optional, default: ./ ]")
+    @Parameter(names = {"--out-directory", "-o"}, description = "Directory to save files [Optional, default: ./ ]")
     private String directory = "./";
 
-    @Parameter(names = {"--block-size", "-b"}, description = "Block size in bytes in which packets are send/read from TCP buffer [Optional, default: 5000]",validateWith = bufferValidator.class)
+    @Parameter(names = {"--block-size", "-b"}, description = "Block size in bytes in which data is writen/read from TCP buffer and from/to disk [Optional, default: 5000]",validateWith = bufferValidator.class)
     private Integer blockSize = 5000;
 
-    @Parameter(names = {"--password", "-x"}, description = "Password, required not to receive malicious files [Optional, default: 12345]")
+    @Parameter(names = {"--password", "-x"}, description = "PasswordX, required not to receive malicious files [Optional, default: 12345]")
     private String password = "12345";
+    
+
 
     //@Parameter(names = "-debug", description = "Debug mode")
     //private boolean debug = false;
@@ -95,6 +100,10 @@ public class ParamParser {
         return files;
     }
     
+    public boolean isHelp(){
+        return help;
+    }
+    
     /*
     
     CONVERSORS
@@ -115,27 +124,35 @@ public class ParamParser {
     
     */
     
+    @SuppressWarnings("empty-statement")
     public void validateMode() throws ParameterException {
-        if ((send == true && receive == true) || (send == false && receive == false)) {
-            throw new ParameterException("There must be only one mode selected, either -s or -r");
+        if(help){
+            ;
         }
-        if( send == true && host.equals("null") ){
-                throw new ParameterException("You need to specify the target IP|hostname.Example: -h 192.168.1.35");
+        else if ((send == true && receive == true) || (send == false && receive == false)) {
+            throw new ParameterException("There must be *one* mode selected, either -s or -r");
+        }
+        else if( send == true && host.equals("null") ){
+            throw new ParameterException("You need to specify the target IP|hostname.Example: -h 192.168.1.35");
         }
     }
     
-    public static class modeValidator implements IParameterValidator {
-
-        public void validate(String name, String value) throws ParameterException {
-        //boolean send = Boolean.parseBoolean(value);
-
-            if ( (send == true && receive == true) || (send == false && receive == false) ) {
-                throw new ParameterException("There must be only one mode selected, either -s or -r");
-            }
-
-            
-        }
-    }
+//    public static class modeValidator implements IParameterValidator {
+//
+//        @SuppressWarnings("empty-statement")
+//        public void validate(String name, String value) throws ParameterException {
+//        //boolean send = Boolean.parseBoolean(value);
+//            if (help){
+//                System.out.println("test");
+//            }else{
+//                System.out.println(help);
+//                if ( (send == true && receive == true) || (send == false && receive == false) ) {
+//                    throw new ParameterException("There must be *one* mode selected, either -s or -r");
+//                }
+//            }
+//            
+//        }
+//    }
     
     public static class portValidator implements IParameterValidator {
 
