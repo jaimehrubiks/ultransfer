@@ -1,5 +1,7 @@
 package com.jaime.ultransfer.network;
 
+import com.jaime.ultransfer.exception.ConnectionException;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,7 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -30,7 +35,7 @@ public class TCPsocket {
     private DataOutputStream    tx;
     private DataInputStream     rx;
     
-    private int                 buffSize = 2000;
+    private int                 buffSize = 4096;
 
     public TCPsocket(String host, int port, int buffSize) {
         this(host,port);
@@ -43,7 +48,8 @@ public class TCPsocket {
             tcpSocket = new Socket(host, port);
             //tx = new DataOutputStream(tcpSocket.getOutputStream()); // Unbuffered Alternative - Direct link
             tx = new DataOutputStream(new BufferedOutputStream(tcpSocket.getOutputStream()));
-            rx = new DataInputStream(tcpSocket.getInputStream());
+            //rx = new DataInputStream(tcpSocket.getInputStream());
+            rx = new DataInputStream(new BufferedInputStream(tcpSocket.getInputStream()));
         } catch (Exception e) {
             System.out.println("[!] SocketError. Can't stablish connection. " + e.toString());
         }
@@ -62,7 +68,8 @@ public class TCPsocket {
             this.tcpSocket = comSocket;
             //tx = new DataOutputStream(tcpSocket.getOutputStream()); // // Unbuffered Alternative - Direct link
             tx = new DataOutputStream(new BufferedOutputStream(tcpSocket.getOutputStream()));
-            rx = new DataInputStream(tcpSocket.getInputStream());
+            //rx = new DataInputStream(tcpSocket.getInputStream());
+            rx = new DataInputStream(new BufferedInputStream(tcpSocket.getInputStream()));
         } catch (UnknownHostException uhe) {
             System.out.println("[!]  SocketError. Can't stablish connection. " + uhe.toString());
         } catch (IOException ex) {
@@ -70,61 +77,69 @@ public class TCPsocket {
         }
         
     }
-
-    public void sendFile(File path) {
-
-        //File file   =     new File(nombre);
-        long total  =     path.length();
-        
-        try (FileInputStream fis = new FileInputStream(path)) {
-            //long progress = 0;
-            //double test;
-            int rest = (int) total % buffSize;
-            tx.writeLong(total);
-            byte[] buffer = new byte[buffSize];
-            for (int i = 0; i < total - rest; i += buffSize) {
-                /*progress +=*/ fis.read(buffer, 0, buffSize);
-                //test = progress / total ;
-                tx.write(buffer, 0, buffSize);
-                //System.out.println("progress: "+progress);
-                //System.out.println("test: "+test);
-                //System.out.println("total: "+total);
-                //System.out.println("[%] "+ test );
-            }
-            fis.read(buffer, 0, rest);
-            tx.write(buffer, 0, rest);
-            tx.flush();
-
-        } catch (Exception e) {
-            System.out.println("[!] Error sending file. " + e.toString());
+    
+    public void setTCPwindowSize(int send, int get){
+        try {
+            tcpSocket.setReceiveBufferSize(get);
+            tcpSocket.setSendBufferSize(send);
+        } catch (SocketException ex) {
+            Logger.getLogger(TCPsocket.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    }
-
-    public void getFile(File path) {
-
-        try (FileOutputStream fos = new FileOutputStream(path)) {
-
-            long total = rx.readLong();
-            int rest = (int) (total % buffSize);
-
-            byte[] buffer = new byte[buffSize];
-            
-            for (int i = 0; i < total - rest; i += buffSize) {
-                rx.read(buffer, 0, buffSize);
-                fos.write(buffer, 0, buffSize);
-            }
-            rx.read(buffer, 0, rest);
-            fos.write(buffer, 0, rest);
-
-        } catch (Exception e) {
-            System.out.println("[!] Error receiving file. " + e.toString());
-        }
-
     }
     
+    public void sendFile(File path) throws ConnectionException {
+        
+        long total  =     path.length();
+        int count;
+        byte[] buffer = new byte[buffSize];
+        //System.out.println("Length: "+total);
+        try (FileInputStream fis = new FileInputStream(path)) {
 
-    public void sendByte(int nt) {
+            tx.writeLong(total);
+            while ( (count = fis.read(buffer)) > 0 ){
+                tx.write(buffer, 0, count);
+                //System.out.println(total);
+            }       
+            tx.flush();
+            if ( getByte() != NetOperations.FILE_ACK) throw new ConnectionException("[!] Error sending file. Undet");
+            
+        } catch (Exception e) {
+            //System.out.println("[!] Error sending file. " + e.toString());
+            throw new ConnectionException("[!] Error sending file. " + e.toString());
+        }
+    }
+
+    public void getFile(File path) throws ConnectionException {
+        
+        long total;
+        int count;
+        byte[] buffer = new byte[buffSize];
+        
+        try (FileOutputStream fos = new FileOutputStream(path)) {
+
+            total = rx.readLong();
+            //System.out.println("Length: "+total);
+
+            while ( total > 0 ){
+                count = rx.read(buffer);
+                fos.write(buffer, 0, count);
+                total -= count;
+                //System.out.println(total);
+            }       
+            tx.flush();
+            sendByte(NetOperations.FILE_ACK);
+
+        } catch (Exception e) {
+            //System.out.println("[!] Error receiving file. " + e.toString());
+            throw new ConnectionException("[!] Error receiving file. " + e.toString());
+        }
+    
+    }
+    
+ 
+    
+
+    public void sendByte(byte nt) {
 
         try {
             tx.writeByte(nt);
@@ -141,8 +156,8 @@ public class TCPsocket {
 
         try {
             nt = rx.readByte();
-        } catch (Exception e) {
-            System.out.println("[!] Error receiving byte." + e.toString());
+        } catch (IOException ex) {
+            Logger.getLogger(TCPsocket.class.getName()).log(Level.SEVERE, null, ex);
             nt = 0;
         }
 
@@ -265,6 +280,110 @@ public class TCPsocket {
         return tcpSocket.getInetAddress().toString();
     }
     
+//   public void sendFile2(File path) {
+//        
+//        long total  =     path.length();
+//        
+//        try (FileInputStream fis = new FileInputStream(path)) {
+//
+//            int count;
+//            //long sum = 0;
+//            byte[] buffer = new byte[buffSize];
+//            //tx.writeLong(total);
+//            //int hint=0;
+//            while ((count = fis.read(buffer)) > 0) {
+//                tx.write(buffer, 0, count);
+//                //sum += count;
+//                //hint+=count;
+//                
+//                //System.out.println(hint);
+//            }
+//            tx.writeByte(NetOperations.FILE_EOF);
+//            
+//            tx.flush();
+//            Thread.sleep(500);
+//        } catch (Exception e) {
+//            System.out.println("[!] Error sending file. " + e.toString());
+//        }
+//    }
+//
+//    public void getFile2(File path) {
+//        
+//        
+//        try (FileOutputStream fos = new FileOutputStream(path)) {
+//            
+//            //long total  =     rx.readLong();
+//            int count;
+//            //long sum = 0; 
+//            byte[] buffer = new byte[buffSize];
+//            //int hint=0;
+//            while ( (count = rx.read(buffer)) > 0 ){
+//                fos.write(buffer, 0, count);
+//                //sum += count;
+//                //hint+=count;
+//                //System.out.println(hint);
+//            }
+//            if(rx.readByte()==NetOperations.FILE_EOF) System.out.println("Correct file received eof");
+//            else System.out.println("Error receiving file");
+//            //fos.flush();
+//
+//        } catch (Exception e) {
+//            System.out.println("[!] Error getting file. " + e.toString());
+//        }
+//    }
+//        
+//    public void sendFile1(File path) {
+//
+//        //File file   =     new File(nombre);
+//        long total  =     path.length();
+//        
+//        try (FileInputStream fis = new FileInputStream(path)) {
+//                        Thread.sleep(1000);
+//            long progress = 0;
+//            //int test;
+//            int rest = (int) total % buffSize;
+//            tx.writeLong(total);
+//            byte[] buffer = new byte[buffSize];
+//            for (int i = 0; i < total - rest; i += buffSize) {
+//                /*progress +=*/ fis.read(buffer, 0, buffSize);
+//                //test = (int) (100 * (float) progress / (float) total) ;
+//                tx.write(buffer, 0, buffSize);
+//                //if(ParamParser.isProgress()) System.out.println("[%] "+ test );
+//            }
+//            fis.read(buffer, 0, rest);
+//            tx.write(buffer, 0, rest);
+//            //System.out.println("[%] 100");
+//            tx.flush();
+//            Thread.sleep(1000);
+//
+//        } catch (Exception e) {
+//            System.out.println("[!] Error sending file. " + e.toString());
+//        }
+//
+//    }
+//
+//    public void getFile1(File path) {
+//
+//        try (FileOutputStream fos = new FileOutputStream(path)) {
+//
+//            long total = rx.readLong();
+//            int rest = (int) (total % buffSize);
+//
+//            byte[] buffer = new byte[buffSize];
+//            
+//            for (int i = 0; i < total - rest; i += buffSize) {
+//                rx.read(buffer, 0, buffSize);
+//                fos.write(buffer, 0, buffSize);
+//            }
+//            rx.read(buffer, 0, rest);
+//            fos.write(buffer, 0, rest);
+//
+//        } catch (Exception e) {
+//            System.out.println("[!] Error receiving file. " + e.toString());
+//        }
+//
+//    }
+    
 //    public void enviarArrayBytes(byte[] array) {
 //
 //        try {
@@ -378,5 +497,5 @@ public class TCPsocket {
     
 
 
-
+    
 }

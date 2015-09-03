@@ -46,10 +46,13 @@ public class ParamParser {
     private String directory = "./";
 
     @Parameter(names = {"--block-size", "-b"}, description = "Block size in bytes in which data is writen/read from TCP buffer and from/to disk [Optional, default: 5000]",validateWith = bufferValidator.class)
-    private Integer blockSize = 5000;
+    private Integer blockSize = 50000;
 
     @Parameter(names = {"--password", "-x"}, description = "PasswordX, required not to receive malicious files [Optional, default: 12345]")
     private String password = "12345";
+    
+    @Parameter(names = "--progress", description = "Displays progress of each file. Useful as interface to other program via stdout")
+    private static boolean progress = false;
     
 
 
@@ -104,6 +107,10 @@ public class ParamParser {
         return help;
     }
     
+    public static boolean isProgress(){
+        return progress;
+    }
+    
     /*
     
     CONVERSORS
@@ -133,7 +140,7 @@ public class ParamParser {
             throw new ParameterException("There must be *one* mode selected, either -s or -r");
         }
         else if( send == true && host.equals("null") ){
-            throw new ParameterException("You need to specify the target IP|hostname.Example: -h 192.168.1.35");
+            throw new ParameterException("You need to specify the target IP|hostname.Example: -d 192.168.1.35");
         }
     }
     
