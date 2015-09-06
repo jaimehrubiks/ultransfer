@@ -1,3 +1,19 @@
+/* 
+ * Copyright (C) 2015 Jaime Hidalgo García
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaime.ultransfer.network;
 
 import com.jaime.ultransfer.exception.ConnectionException;
@@ -280,219 +296,6 @@ public class TCPsocket {
         return tcpSocket.getInetAddress().toString();
     }
     
-//   public void sendFile2(File path) {
-//        
-//        long total  =     path.length();
-//        
-//        try (FileInputStream fis = new FileInputStream(path)) {
-//
-//            int count;
-//            //long sum = 0;
-//            byte[] buffer = new byte[buffSize];
-//            //tx.writeLong(total);
-//            //int hint=0;
-//            while ((count = fis.read(buffer)) > 0) {
-//                tx.write(buffer, 0, count);
-//                //sum += count;
-//                //hint+=count;
-//                
-//                //System.out.println(hint);
-//            }
-//            tx.writeByte(NetOperations.FILE_EOF);
-//            
-//            tx.flush();
-//            Thread.sleep(500);
-//        } catch (Exception e) {
-//            System.out.println("[!] Error sending file. " + e.toString());
-//        }
-//    }
-//
-//    public void getFile2(File path) {
-//        
-//        
-//        try (FileOutputStream fos = new FileOutputStream(path)) {
-//            
-//            //long total  =     rx.readLong();
-//            int count;
-//            //long sum = 0; 
-//            byte[] buffer = new byte[buffSize];
-//            //int hint=0;
-//            while ( (count = rx.read(buffer)) > 0 ){
-//                fos.write(buffer, 0, count);
-//                //sum += count;
-//                //hint+=count;
-//                //System.out.println(hint);
-//            }
-//            if(rx.readByte()==NetOperations.FILE_EOF) System.out.println("Correct file received eof");
-//            else System.out.println("Error receiving file");
-//            //fos.flush();
-//
-//        } catch (Exception e) {
-//            System.out.println("[!] Error getting file. " + e.toString());
-//        }
-//    }
-//        
-//    public void sendFile1(File path) {
-//
-//        //File file   =     new File(nombre);
-//        long total  =     path.length();
-//        
-//        try (FileInputStream fis = new FileInputStream(path)) {
-//                        Thread.sleep(1000);
-//            long progress = 0;
-//            //int test;
-//            int rest = (int) total % buffSize;
-//            tx.writeLong(total);
-//            byte[] buffer = new byte[buffSize];
-//            for (int i = 0; i < total - rest; i += buffSize) {
-//                /*progress +=*/ fis.read(buffer, 0, buffSize);
-//                //test = (int) (100 * (float) progress / (float) total) ;
-//                tx.write(buffer, 0, buffSize);
-//                //if(ParamParser.isProgress()) System.out.println("[%] "+ test );
-//            }
-//            fis.read(buffer, 0, rest);
-//            tx.write(buffer, 0, rest);
-//            //System.out.println("[%] 100");
-//            tx.flush();
-//            Thread.sleep(1000);
-//
-//        } catch (Exception e) {
-//            System.out.println("[!] Error sending file. " + e.toString());
-//        }
-//
-//    }
-//
-//    public void getFile1(File path) {
-//
-//        try (FileOutputStream fos = new FileOutputStream(path)) {
-//
-//            long total = rx.readLong();
-//            int rest = (int) (total % buffSize);
-//
-//            byte[] buffer = new byte[buffSize];
-//            
-//            for (int i = 0; i < total - rest; i += buffSize) {
-//                rx.read(buffer, 0, buffSize);
-//                fos.write(buffer, 0, buffSize);
-//            }
-//            rx.read(buffer, 0, rest);
-//            fos.write(buffer, 0, rest);
-//
-//        } catch (Exception e) {
-//            System.out.println("[!] Error receiving file. " + e.toString());
-//        }
-//
-//    }
-    
-//    public void enviarArrayBytes(byte[] array) {
-//
-//        try {
-//            tx.writeInt(array.length);
-//            tx.write(array);
-//
-//            tx.flush();
-//        } catch (Exception e) {
-//            System.out.println("Error al enviar el array." + e.toString());
-//        }
-//
-//    }
-//
-//    public byte[] recibirArrayBytes() {
-//
-//        byte[] array = null;
-//        int nt;
-//
-//        try {
-//            nt = rx.readInt();
-//            if (nt > 0) {
-//                array = new byte[nt];
-//                rx.readFully(array, 0, nt);
-//            }
-//
-//        } catch (Exception e) {
-//            System.out.println("Error al recibir el array." + e.toString());
-//        }
-//
-//        return array;
-//
-//    }
-//
-//    public void enviarArrayInt(int[] array) {
-//
-//        try {
-//            tx.writeInt(array.length);
-//            for (int nt : array) {
-//                tx.writeInt(nt);
-//            }
-//            tx.flush(); //Si wrapeamos un buffer tenemos que hacer flush en algunos casos como este
-//        } catch (Exception e) {
-//            System.out.println("Error al enviar array." + e.toString());
-//        }
-//
-//    }
-//
-//    public int[] recibirArrayInt() {
-//
-//        int[] array = null;
-//
-//        try {
-//            int length = rx.readInt();
-//            array = new int[length];
-//            for (int i = 0; i < length; i++) {
-//                array[i] = rx.readInt();
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Error al recibir el array." + e.toString());
-//        }
-//
-//        return array;
-//
-//    }
-//
-//    public void enviarArrayBidInt(int[][] array) {
-//
-//        try {
-//
-//            tx.writeInt(array.length);      //Filas
-//            tx.writeInt(array[0].length);   //Columnas
-//
-//            for (int[] fila : array) {
-//                for (int elemento : fila) {
-//                    tx.writeInt(elemento);
-//                }
-//            }
-//
-//            tx.flush();
-//
-//        } catch (Exception e) {
-//            System.out.println("Error al enviar el array." + e.toString());
-//        }
-//
-//    }
-//
-//    public int[][] recibirArrayBidInt() {
-//
-//        int[][] array = null;
-//
-//        try {
-//
-//            int filas = rx.readInt();
-//            int columnas = rx.readInt();
-//            array = new int[filas][columnas];
-//
-//            for (int[] fila : array) {
-//                for (int i = 0; i < columnas; i++) {
-//                    fila[i] = rx.readInt();
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            System.out.println("Error al recibir el array." + e.toString());
-//        }
-//
-//        return array;
-//
-//    }
 
     
 

@@ -1,8 +1,18 @@
-/*
- * JAIME HIDALGO.
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2015 Jaime Hidalgo García
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.jaime.ultransfer.main;
 
@@ -21,7 +31,8 @@ import java.util.logging.Logger;
 public class ServerInstance implements Runnable{
     
     private final TCPsocket socket;
-    private ParamParser param;
+    private ParamParser     param;
+    private static int      seq;
 
     /*
     STARTING SOCKETS AND CONFIGURING OPTIONS
@@ -30,13 +41,14 @@ public class ServerInstance implements Runnable{
         socket = new TCPsocket(accept,param.getBlockSize());
         socket.setTCPwindowSize(50000, 50000);
         this.param = param;
+        seq++;
     }
 
 //    @Override
     public void run() {
         
         boolean connected = true;
-        
+        String seqs = "["+seq+"]";
         /*
         AUTHENTICATION PROCESS
         */
@@ -45,7 +57,7 @@ public class ServerInstance implements Runnable{
             socket.sendByte(NetOperations.PASSWORD_ACK);
         else{
             socket.sendByte(NetOperations.PASSWORD_NACK);
-            System.out.println("[?] "+"Client "+socket.getIp() +" tried to connect but failed in authentication");
+            System.out.println("[?] "+seqs+" Client "+socket.getIp() +" tried to connect but failed in authentication");
             connected = false;
         }
         
@@ -58,7 +70,7 @@ public class ServerInstance implements Runnable{
             byte op;
             
             int fileNumber = socket.getInt();
-            System.out.println("[?] "+"New client "+socket.getIp() +" succesfully authenticated. "
+            System.out.println("[?] "+seqs+" New client "+socket.getIp() +" succesfully authenticated. "
                                +fileNumber+" files are now in queue to be received.");
 
             for(int i = 1 ; i <= fileNumber ; i++){
@@ -66,13 +78,13 @@ public class ServerInstance implements Runnable{
                     file = new File( param.getDirectory()+"/"+socket.getString() );
                     try {
                         socket.getFile( file );
-                        System.out.println("[o] "+i+"/"+fileNumber+" - File \""+file.getName()+"\" Received");
+                        System.out.println("[o] "+seqs+" "+i+"/"+fileNumber+" - File \""+file.getName()+"\" Received");
                     } catch (ConnectionException ex) {
                         System.out.println(ex.getMessage());
-                        System.out.println("[x] Error receiving file "+i+"/"+fileNumber+" -IOerror-");
+                        System.out.println("[x] "+seqs+" Error receiving file "+i+"/"+fileNumber+" -IOerror-");
                     }
                 }else if (op == NetOperations.FILE_NOT_FOUND){
-                    System.out.println("[x] Error receiving file "+i+"/"+fileNumber+" -not found-");
+                    System.out.println("[x] "+seqs+" Error receiving file "+i+"/"+fileNumber+" -not found-");
                 }
             }
             
@@ -83,7 +95,7 @@ public class ServerInstance implements Runnable{
         /*
         CONNECTION MUST END PROPERLY
         */
-        System.out.println("[?] "+"Closing connection");
+        System.out.println("[?] "+seqs+" Closing connection");
         socket.sendByte(NetOperations.READY_TO_CLOSE);
         
         try {
