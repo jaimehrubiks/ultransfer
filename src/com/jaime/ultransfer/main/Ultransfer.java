@@ -42,8 +42,8 @@ public class Ultransfer {
     }
     
     public void run(){
-        if(param.getReceiveMode()==true) new ServerMode(param).run();
-        else                             new ClientMode(param).run();
+        if(param.getReceiveMode()==true) new ServerMode().run();
+        else                             new ClientMode().run();
     }
     
     /**
@@ -74,8 +74,8 @@ public class Ultransfer {
             System.exit(0);
         }
         
-        if(param.getReceiveMode()==true) new ServerMode(param).run();
-        else                             new ClientMode(param).run();
+        if(param.getReceiveMode()==true) new ServerMode().run();
+        else                             new ClientMode().run();
 
     }
     

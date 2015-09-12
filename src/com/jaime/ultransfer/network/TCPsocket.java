@@ -53,10 +53,10 @@ public class TCPsocket {
     
     private int                 buffSize = 4096;
 
-    public TCPsocket(String host, int port, int buffSize) {
-        this(host,port);
-        this.buffSize = buffSize;
-    }
+//    public TCPsocket(String host, int port, int buffSize) {
+//        this(host,port);
+//        this.buffSize = buffSize;
+//    }
     
     public TCPsocket(String host, int port) {
 
@@ -72,10 +72,10 @@ public class TCPsocket {
 
     }
     
-    public TCPsocket(Socket comSocket, int buffSize) {
-        this(comSocket);
-        this.buffSize = buffSize;
-    }
+//    public TCPsocket(Socket comSocket) {
+//        this(comSocket);
+//        //this.buffSize = buffSize;
+//    }
     
 
     public TCPsocket(Socket comSocket) {

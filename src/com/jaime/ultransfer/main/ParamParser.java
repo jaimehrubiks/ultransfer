@@ -46,23 +46,26 @@ public class ParamParser {
 
     //Host and port
     @Parameter(names = {"--port","-p"}, description = "Port to listen / connect [Optional, default: 7055]",validateWith = portValidator.class)
-    private Integer port = 7055;
+    private static Integer port = 7055;
 
     @Parameter(names = {"--destination", "-d"}, description = "Host | Destination, required in --send|-s mode")
     private static String host = "null";
 
     //Configs
     @Parameter(names = {"--out-directory", "-o"}, description = "Directory to save files [Optional, default: ./ ]")
-    private String directory = "./";
+    private static String directory = "./";
 
-    @Parameter(names = {"--block-size", "-b"}, description = "Block size in bytes in which data is writen/read from TCP buffer and from/to disk [Optional, default: 5000]",validateWith = bufferValidator.class)
-    private Integer blockSize = 50000;
+//    @Parameter(names = {"--block-size", "-b"}, description = "Block size in bytes in which data is writen/read from TCP buffer and from/to disk [Optional, default: 5000]",validateWith = bufferValidator.class)
+//    private static Integer blockSize = 50000;
 
     @Parameter(names = {"--password", "-x"}, description = "PasswordX, required not to receive malicious files [Optional, default: 12345]")
-    private String password = "12345";
+    private static String password = "12345";
     
     @Parameter(names = "--progress", description = "Displays progress of each file. Useful as interface to other program via stdout")
     private static boolean progress = false;
+    
+    @Parameter(names = {"--invert","-i"}, description = "Reverse mode, here sender will listen on selected port and receiver will attempt to connect to it. Only one connection will be made.")
+    private static boolean inverse = false;
     
 
 
@@ -71,7 +74,7 @@ public class ParamParser {
 
     //Main parameter for Files to send
     @Parameter(description = "Files")//, converter = FileConverter.class)
-    private List<String> files = new ArrayList<>();
+    private static List<String> files = new ArrayList<>();
 
     
     
@@ -85,35 +88,31 @@ public class ParamParser {
         return send;
     }
     
-    public boolean getReceiveMode(){
+    public static boolean getReceiveMode(){
         return receive;
     }
     
-    public int getPort(){
+    public static int getPort(){
         return port; 
     }
     
-    public String getHost(){
+    public static String getHost(){
         return String.valueOf( host );
     }
     
-    public String getDirectory(){
+    public static String getDirectory(){
         return directory;
     }
     
-    public int getBlockSize(){
-        return blockSize;
-    }
-    
-    public String getPassword(){
+    public static String getPassword(){
         return password;
     }
     
-    public List<String> getFiles(){
+    public static List<String> getFiles(){
         return files;
     }
     
-    public boolean isHelp(){
+    public static boolean isHelp(){
         return help;
     }
     
@@ -121,6 +120,9 @@ public class ParamParser {
         return progress;
     }
     
+    public static boolean isInverse(){
+        return inverse;
+    }
     /*
     
     CONVERSORS
@@ -150,6 +152,9 @@ public class ParamParser {
             throw new ParameterException("There must be *one* mode selected, either -s or -r");
         }
         else if( send == true && host.equals("null") ){
+            throw new ParameterException("You need to specify the target IP|hostname.Example: -d 192.168.1.35");
+        }
+        else if( receive == true && host.equals("null") && inverse == true ){
             throw new ParameterException("You need to specify the target IP|hostname.Example: -d 192.168.1.35");
         }
     }

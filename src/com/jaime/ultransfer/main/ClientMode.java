@@ -20,6 +20,8 @@ import com.jaime.ultransfer.exception.ConnectionException;
 import com.jaime.ultransfer.network.NetOperations;
 import com.jaime.ultransfer.network.TCPsocket;
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,13 +31,22 @@ import java.util.logging.Logger;
  */
 public class ClientMode {
     
-    private ParamParser param;
     private TCPsocket   socket ;//= new TCPsocket(param.getHost(),param.getPort());
     
-    public ClientMode(ParamParser param){
-        this.param = param;
-        socket = new TCPsocket(param.getHost(),param.getPort(),param.getBlockSize());
-        socket.setTCPwindowSize(50000, 50000);
+    public ClientMode(){
+        
+        try {
+            if (!ParamParser.isInverse()) {
+                socket = new TCPsocket( ParamParser.getHost() , ParamParser.getPort() );            
+            } else {
+                ServerSocket serverSocket = new ServerSocket( ParamParser.getPort() );
+                socket = new TCPsocket( serverSocket.accept() );
+            }                
+                socket.setTCPwindowSize(50000, 50000);                
+        } catch (IOException ex) {
+            Logger.getLogger(ClientMode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     public void run(){
@@ -44,7 +55,7 @@ public class ClientMode {
         AUTHENTICATION PROCESS
         */
         if ( socket.getByte() == NetOperations.PASSWORD_REQUIRED ){
-            socket.sendString(param.getPassword());
+            socket.sendString(ParamParser.getPassword());
         }else{
             System.exit(1);
         }
@@ -61,13 +72,13 @@ public class ClientMode {
         TRANSFERING FILES
         */
         while(connected){
-            int fileNumber = param.getFiles().size();
+            int fileNumber = ParamParser.getFiles().size();
             System.out.println("[?] "+"Authentication successful! Preparing to send "+fileNumber+" files.");
             socket.sendInt(fileNumber);
             File file;
             byte op;
             for(int i = 1 ; i <= fileNumber ; i++){
-                file = new File( param.getFiles().get(i-1) );
+                file = new File( ParamParser.getFiles().get(i-1) );
                 if( file.exists() && file.isFile() ){
                     try {
                         socket.sendByte(NetOperations.FILE_SOON);

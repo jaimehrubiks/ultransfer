@@ -16,6 +16,7 @@
  */
 package com.jaime.ultransfer.main;
 
+import com.jaime.ultransfer.network.TCPsocket;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -25,29 +26,36 @@ import java.net.ServerSocket;
  */
 public class ServerMode {
     
-    private ParamParser param;
+    //private ParamParser param;
 
-    public ServerMode(ParamParser param) {
-        this.param = param;
+    public ServerMode() {
     }
 
     public void run() {
 
         boolean listening = true;
         
-        try (ServerSocket serverSocket = new ServerSocket( param.getPort() )) {
-            
-            while (listening) {
-                //System.out.println("New connection");
-                Thread t = new Thread(new ServerInstance(serverSocket.accept(),param));
-                t.start();
+        
+        if (!ParamParser.isInverse()) {
+
+            try (ServerSocket serverSocket = new ServerSocket(ParamParser.getPort())) {
+
+                while (listening) {
+                    //System.out.println("New connection");
+                    Thread t = new Thread(new ServerInstance(serverSocket.accept()));
+                    t.start();
+                }
+
+            } catch (IOException e) {
+                System.err.println("Could not listen on port " + ParamParser.getPort()
+                        + " . Check port availability and internet connection");
+                //ErrorLogger.toFile("IOError", e.toString());
+                System.exit(-1);
             }
-            
-        } catch (IOException e) {
-            System.err.println("Could not listen on port " + param.getPort() + 
-                              " . Check port availability and internet connection");
-            //ErrorLogger.toFile("IOError", e.toString());
-            System.exit(-1);
+
+        } else {
+            TCPsocket socket = new TCPsocket( ParamParser.getHost() , ParamParser.getPort() );
+            new ServerInstance(socket).run();
         }
 
     }

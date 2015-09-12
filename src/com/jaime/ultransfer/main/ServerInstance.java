@@ -20,6 +20,8 @@ import com.jaime.ultransfer.exception.ConnectionException;
 import com.jaime.ultransfer.network.NetOperations;
 import com.jaime.ultransfer.network.TCPsocket;
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,18 +32,22 @@ import java.util.logging.Logger;
  */
 public class ServerInstance implements Runnable{
     
-    private final TCPsocket socket;
-    private ParamParser     param;
+    private TCPsocket socket = null;
+    //private ParamParser     param;
     private static int      seq;
 
     /*
     STARTING SOCKETS AND CONFIGURING OPTIONS
     */
-    public ServerInstance(Socket accept, ParamParser param) {
-        socket = new TCPsocket(accept,param.getBlockSize());
-        socket.setTCPwindowSize(50000, 50000);
-        this.param = param;
+    public ServerInstance( Socket accept ) {
+        socket = new TCPsocket(accept);
+        socket.setTCPwindowSize(50000, 50000);                
         seq++;
+    }
+    
+    public ServerInstance(TCPsocket socket) {
+        this.socket = socket;
+        socket.setTCPwindowSize(50000, 50000);      
     }
 
 //    @Override
@@ -53,7 +59,7 @@ public class ServerInstance implements Runnable{
         AUTHENTICATION PROCESS
         */
         socket.sendByte(NetOperations.PASSWORD_REQUIRED );
-        if ( socket.getString().equals(param.getPassword()) )
+        if ( socket.getString().equals(ParamParser.getPassword()) )
             socket.sendByte(NetOperations.PASSWORD_ACK);
         else{
             socket.sendByte(NetOperations.PASSWORD_NACK);
@@ -75,7 +81,7 @@ public class ServerInstance implements Runnable{
 
             for(int i = 1 ; i <= fileNumber ; i++){
                 if( (op = socket.getByte()) == NetOperations.FILE_SOON){
-                    file = new File( param.getDirectory()+"/"+socket.getString() );
+                    file = new File( ParamParser.getDirectory()+"/"+socket.getString() );
                     try {
                         socket.getFile( file );
                         System.out.println("[o] "+seqs+" "+i+"/"+fileNumber+" - File \""+file.getName()+"\" Received");
