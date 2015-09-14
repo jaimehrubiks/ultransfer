@@ -19,6 +19,9 @@ Usage: java -jar filesender.jar [-r|-s] [-p PORT] [-d DEST HOSTNAME | IP] [-o SA
     >     --help, -h
     >        Shows this help
     >        Default: false
+    >     --invert, -i
+    >        Reverse mode, here sender will listen on selected port and receiver will attempt to connect to it. Only one connection will be made.
+    >        Default: false
     >     --out-directory, -o
     >        Directory to save files [Optional, default: ./ ]
     >        Default: ./
