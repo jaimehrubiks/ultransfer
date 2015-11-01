@@ -60,6 +60,11 @@ Send files
 
 
 ## Inverse Mode:
+
 Normally receiver must open ports. If "-i" is specified in both sides, then sender must open ports, and receiver must specify ip address.
 
+## Download binaries:
+"Compile from source for latest version"
+
+Link (v0.9): https://github.com/jaimehrubiks/ultransfer/releases/download/v.0.9/Ultransfer_CLI_v_0_9.rar  
         
