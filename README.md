@@ -9,9 +9,7 @@ Usage: java -jar filesender.jar [-r|-s] [-p PORT] [-d DEST HOSTNAME | IP] [-o SA
     > Usage: java -jar ultransfer.jar -s|-r
     > [options] Files   Options:
     >     --block-size, -b
-    >        Block size in bytes in which data is writen/read from TCP buffer
-    > and from/to disk [Optional, default:
-    > 5000]
+    >        Block size in bytes in which data is writen/read from TCP buffer and from/to disk [Optional, default: 5000]
     >        Default: 50000
     >     --destination, -d
     >        Host | Destination, required in --send|-s mode
@@ -26,15 +24,13 @@ Usage: java -jar filesender.jar [-r|-s] [-p PORT] [-d DEST HOSTNAME | IP] [-o SA
     >        Directory to save files [Optional, default: ./ ]
     >        Default: ./
     >     --password, -x
-    >        PasswordX, required not to receive malicious files [Optional,
-    > default: 12345]
+    >        PasswordX, required not to receive malicious files [Optional, default: 12345]
     >        Default: 12345
     >     --port, -p
     >        Port to listen / connect [Optional, default: 7055]
     >        Default: 7055
     >     --progress --> NOT IMPLEMENTED
-    >        Displays progress of each file. Useful as interface to other program
-    > via stdout
+    >        Displays progress of each file. Useful as interface to other program via stdout
     >        Default: false
     >     --receive, -r
     >        Receiving files mode
