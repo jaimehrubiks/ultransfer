@@ -44,7 +44,7 @@ Usage: java -jar filesender.jar [-r|-s] [-p PORT] [-d DEST HOSTNAME | IP] [-o SA
     >        Default: false
 
 
-
+## Examples:
 
 Receive files
 
@@ -55,9 +55,11 @@ Receive files
 
 Send files
 
->     java -jar ultransfer.jar -s file1
->     java -jar ultransfer.jar -s -p 4000 —d 192.168.1.105 -x 12345 file1 file2 file3 file4…
+>     java -jar ultransfer.jar -s -d 192.168.1.105 file1
+>     java -jar ultransfer.jar -s —d 192.168.1.105 -p 4000 -x 12345 file1 file2 file3 file4…
 
 
+## Inverse Mode:
+Normally receiver must open ports. If "-i" is specified in both sides, then sender must open ports, and receiver must specify ip address.
 
         
